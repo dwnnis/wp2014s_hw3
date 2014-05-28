@@ -96,13 +96,13 @@
 			var id = document.getElementById("form-signin-student-id").value;
 			var pw = document.getElementById("form-signin-password").value;
 			Parse.User.logIn(id,pw,{
-				success: function(){
-					postAction();
+				success: function(user){
+					postAction();	
 				}, 
-				error: function(){
+				error: function(user,error){
 					showMessage('form-signin-message', function(){
 						return false;
-					}, "打錯了啦!你腦袋有洞嗎?");
+					}, "打錯了啦");
 				}
 			});
 		}, false);
@@ -157,11 +157,11 @@
 			// 定義一個新的query,呼叫他即可查找"Evaluation"裡的所有data。
 			
 			var query = new Parse.Query(Evaluation);
-			query.equalTo('user', currentUser);
+			query.equalTo('username', currentUser);
 			query.first({
 				success: function(evaluation){
 					// ㄜ 始終不知道這個在幹嘛。
-					window.EVAL = evaluation;
+					console.log("evaluation: " + evaluation)
 					if(evaluation === undefined){
 						var TeamMembers = TAHelp.getMemberlistOf(currentUser.get('username')).filter(function(e){
 							return (e.StudentId !== currentUser.get('username')) ? true : false;
@@ -170,7 +170,7 @@
 							return e;
 						});
 					} else {
-						console.log("found")
+						console.log(evaluation)
 						var TeamMembers = evaluation.toJSON().evaluations;
 						console.log("TeamMembers is " + TeamMembers)
 					}
@@ -185,6 +185,7 @@
 								var amount = e.options[e.selectedIndex].value;
 								TeamMembers[i].scores[j] = amount;
 							}
+							
 						}
 						if(evaluation === undefined){
 							evaluation = new Evaluation();
@@ -197,19 +198,73 @@
 							success: function(){
 								document.getElementById('content').innerHTML = templates.updateSuccessView();
 							}, 
-							error: function(object, err){},
-						});
+							error: function(){},
+						});	
 					}, false);
 				},
-				error: function(){}
+				error: function(object, err){}
 			});
 		//}
 	})
 };
+ /*evaluationView: commons.loginRequiredView(function () {
+      var Evaluation = Parse.Object.extend('Evaluation');
+      var currentUser = Parse.User.current();      
+      var evaluationACL = new Parse.ACL();
+      evaluationACL.setPublicReadAccess(false);
+      evaluationACL.setPublicWriteAccess(false);
+      evaluationACL.setReadAccess(currentUser, true);
+      evaluationACL.setWriteAccess(currentUser, true);
+      
+      var query = new Parse.Query(Evaluation);
+      query.equalTo('user', currentUser);
+      query.first({
+        success: function(evaluation){
+          window.EVAL = evaluation;
+          if(evaluation === undefined){
+             var TeamMembers = TAHelp.getMemberlistOf(currentUser.get('username')).filter(function(e){
+              return (e.StudentId !== currentUser.get('username') ) ? true : false;
+            }).map(function(e){
+              e.scores = ['0', '0', '0', '0'];
+              return e;
+            });
+          } else {
+            var TeamMembers = evaluation.toJSON().evaluations;
+          }
+          document.getElementById('content').innerHTML = templates.evaluationView(TeamMembers);
+          document.getElementById('evaluationForm-submit').value = ( evaluation === undefined ) ? '送出' :'修改';
+          document.getElementById('evaluationForm').addEventListener('submit', function(){
+            for(var i = 0; i < TeamMembers.length; i++){
+              for(var j = 0; j < TeamMembers[i].scores.length; j++){
+                var e = document.getElementById('stu'+TeamMembers[i].StudentId+'-q'+j);
+                var amount = e.options[e.selectedIndex].value;
+                TeamMembers[i].scores[j] = amount;
+              }
+            }
+            if( evaluation === undefined ){
+              evaluation = new Evaluation();
+              evaluation.set('user', currentUser);
+              evaluation.setACL(evaluationACL);
+            }
+            console.log(TeamMembers);
+            evaluation.set('evaluations', TeamMembers);
+            evaluation.save(null, {
+              success: function(){
+                document.getElementById('content').innerHTML = templates.updateSuccessView();
+              },
+              error: function(){},
+            });
+
+          }, false);
+        }, error: function(object, err){
+        
+        }
+      }); 
+    })
+    };
 	/* Router */
-	
 	var App = Parse.Router.extend({
-    // routes要用來判斷的是連結不同的view與網址之關係。
+	    // routes要用來判斷的是連結不同的view與網址之關係。
     routes: { 
       "": "indexView",
       "peer-evaluation/": "evaluationView",
