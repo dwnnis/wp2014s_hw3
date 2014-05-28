@@ -1,0 +1,8 @@
+1.
+document.getElementById('NAME')
+裡面要放"id"
+
+2.
+function(user) 代表輸入成功。
+
+3. 

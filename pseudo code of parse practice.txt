@@ -1,0 +1,38 @@
+
+app.js偽代碼
+(function(){
+  初始化Parse();
+  編譯template engine函數();
+  可選-編寫共用函數();
+  var handler = {
+    @@@@@navbar函數: function(){
+      if(登入狀況){
+        顯示哪些button();
+      } else {
+        顯示哪些button();      
+      }
+    }
+    @@@@@登入view函數: function(){
+      把版型印到瀏覽器上();
+      綁定登入表單的學號檢查事件(); // 可以利用TAHelp物件
+      綁定註冊表單的學號檢查事件(); // 可以利用TAHelp物件
+      綁定註冊表單的密碼檢查事件(); // 參考上課範例
+      綁定登入表單的登入檢查事件(); // 送出還要再檢查一次，這裡會用Parse.User.logIn
+      綁定註冊表單的註冊檢查事件(); // 送出還要再檢查一次，這裡會用Parse.User.signUp和相關函數
+    },
+    @@@@@評分view函數: function(){
+      // 基本上和上課範例購物車的函數很相似，這邊會用Parse DB
+      問看看Parse有沒有這個使用者之前提交過的peer review物件(
+      沒有的話: 從TAHelp生一個出來(加上scores: [‘0’, ‘0’, ‘0’, ‘0’]屬性存分數並把自己排除掉)
+      把peer review物件裡的東西透過版型印到瀏覽器上();
+      綁定表單送出的事件(); // 如果Parse沒有之前提交過的peer review物件，要自己new一個。或更新分數然後儲存。
+      );
+    },
+  };
+  var router = {
+    ‘’: handler.登入view函數,
+    ‘peer-evaluation’: handler.評分view函數. 
+  };
+
+  讓router活起來();
+})();
